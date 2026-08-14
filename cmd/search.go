@@ -72,16 +72,18 @@ func getTestUsers() {
 }
 
 func detectClipboardCmd() string {
-	clipboardCmd := "pbcopy"
+	return detectClipboardCmdForOS(runtime.GOOS)
+}
 
-	switch runtime.GOOS {
+func detectClipboardCmdForOS(goos string) string {
+	switch goos {
 	case "linux":
-		clipboardCmd = "xclip -selection clipboard"
+		return "xclip -selection clipboard"
 	case "windows":
-		clipboardCmd = "clip"
+		return "clip"
+	default:
+		return "pbcopy"
 	}
-
-	return clipboardCmd
 }
 
 func readInput(selected string) string {
