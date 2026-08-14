@@ -42,6 +42,12 @@ cd folkctl
 go build && sudo mv folkctl /usr/local/bin/
 ```
 
+### Go installation
+
+```bash
+go install github.com/antoniorodr/folkctl@latest
+```
+
 <!-- ### Homebrew installation -->
 <!---->
 <!-- ```bash -->

@@ -1,4 +1,4 @@
-module folkctl
+module github.com/antoniorodr/folkctl
 
 go 1.26.4
 
