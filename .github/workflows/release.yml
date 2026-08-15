@@ -1,0 +1,70 @@
+name: Testing, create changelog and release
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+      - name: Setup Go
+        uses: actions/setup-go@v7.0.0
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: dist
+          path: dist/
+  changelog:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+  release:
+    needs: [changelog, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: dist
+          path: dist/
+      - name: Create release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ needs.changelog.outputs.release_body }}
+          artifacts: dist/*
+          artifactErrorsFailBuild: true
+          makeLatest: true
