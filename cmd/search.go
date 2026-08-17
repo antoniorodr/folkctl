@@ -6,6 +6,8 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	fzf "github.com/junegunn/fzf/src"
+	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"os/exec"
@@ -13,9 +15,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-
-	fzf "github.com/junegunn/fzf/src"
-	"github.com/spf13/cobra"
 )
 
 var searchCmd = &cobra.Command{
@@ -24,17 +23,30 @@ var searchCmd = &cobra.Command{
 	Long: `Search users in the Folkomaten test database using fzf.
 
 	You can copy information of the selected user to the clipboard by pressing Enter and then choose what to copy`,
-	Run: func(cmd *cobra.Command, args []string) {
-		getTestUsers()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		databasePath, err := cmd.Flags().GetString("file")
+
+		if err != nil {
+			fmt.Println("Error reading flag:", err)
+			return err
+		}
+
+		if databasePath == "" {
+			databasePath = loadConfig()
+		}
+
+		getTestUsers(databasePath)
+		return nil
 	},
 }
 
 func init() {
+	searchCmd.Flags().StringP("file", "f", "", "change the database file to populate the folkctl database with")
 	rootCmd.AddCommand(searchCmd)
 }
 
-func getTestUsers() {
-	filePath, err := filepath.Abs("resources/testbrukere.txt")
+func getTestUsers(filePath string) {
+	filePath, err := filepath.Abs(filePath)
 
 	if err != nil {
 		fmt.Println("Error resolving resource path:", err)
