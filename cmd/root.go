@@ -4,10 +4,19 @@ Copyright © 2026 ANTONIO RODRIGUEZ <kontakt@antoniorodriguez.no>
 package cmd
 
 import (
-	"os"
-
+	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
+	"path/filepath"
 )
+
+var DEFAULT_DATABASE = "resources/testbrukere.txt"
+
+type Config struct {
+	ActiveDatabase string `toml:"active_database"`
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "folkctl",
@@ -22,4 +31,120 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func loadConfig() string {
+	configDir, err := getConfigPath()
+
+	if err != nil {
+		fmt.Println("Error resolving resource path:", err)
+		return ""
+	}
+
+	configFile := filepath.Join(configDir, "config.toml")
+
+	var config Config
+
+	if _, err := toml.DecodeFile(configFile, &config); err != nil {
+		fmt.Println("Error reading config file:", err)
+		return ""
+	}
+
+	return config.ActiveDatabase
+}
+
+func createDefaultConfig(activeDatabase string) {
+	configDir, err := getConfigPath()
+	if err != nil {
+		fmt.Println("Error resolving resource path:", err)
+		return
+	}
+
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		fmt.Println("Error creating config directory:", err)
+		return
+	}
+
+	configFile := filepath.Join(configDir, "config.toml")
+
+	if _, err := os.Stat(configFile); err == nil {
+		return
+	} else if !os.IsNotExist(err) {
+		fmt.Println("Error checking config file:", err)
+		return
+	}
+
+	err = os.WriteFile(
+		configFile,
+		[]byte(fmt.Sprintf("active_database = %q\n", activeDatabase)),
+		0644,
+	)
+
+	if err != nil {
+		fmt.Println("Error creating config file:", err)
+	}
+}
+
+func createDefaultDatabase() {
+	configDir, err := getConfigPath()
+
+	if err != nil {
+		fmt.Println("Error resolving resource path:", err)
+		return
+	}
+
+	databaseDir := filepath.Join(configDir, "databases")
+	databaseFile := filepath.Join(databaseDir, "testbrukere.txt")
+
+	if err := os.MkdirAll(databaseDir, 0755); err != nil {
+		fmt.Println("Error creating database directory:", err)
+		return
+	}
+
+	if _, err := os.Stat(databaseFile); err == nil {
+		return
+	} else if !os.IsNotExist(err) {
+		fmt.Println("Error checking database:", err)
+		return
+	}
+
+	source, err := os.Open(DEFAULT_DATABASE)
+
+	if err != nil {
+		fmt.Println("Error opening default database:", err)
+		return
+	}
+
+	defer source.Close()
+
+	destination, err := os.Create(databaseFile)
+
+	if err != nil {
+		fmt.Println("Error creating database:", err)
+		return
+	}
+
+	defer destination.Close()
+
+	if _, err := io.Copy(destination, source); err != nil {
+		fmt.Println("Error copying default database:", err)
+		return
+	}
+}
+
+func getConfigPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	configDir, err := filepath.Abs(homeDir + "/.config/folkctl/")
+
+	if err != nil {
+		fmt.Println("Error resolving resource path:", err)
+		return "", err
+	}
+
+	return configDir, err
+}
+
+func init() {
+	createDefaultConfig(DEFAULT_DATABASE)
+	createDefaultDatabase()
 }
