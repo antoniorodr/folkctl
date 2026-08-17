@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/charlievieth/fastwalk v1.0.14 // indirect
+	github.com/earthboundkid/versioninfo/v2 v2.24.1 // direct
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/gdamore/tcell/v2 v2.9.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -22,3 +23,5 @@ require (
 	golang.org/x/term v0.34.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 )
+
+require github.com/BurntSushi/toml v1.6.0 // direct
