@@ -12,7 +12,20 @@ import (
 	"path/filepath"
 )
 
-var DEFAULT_DATABASE = "resources/testbrukere.txt"
+var ORIGINAL_DATABASE = "resources/testbrukere.txt"
+var DEFAULT_DATABASE = getDefaultDatabase()
+
+func getDefaultDatabase() string {
+	homeDir, err := os.UserHomeDir()
+
+	if err != nil {
+		fmt.Println("Error resolving resource path:", err)
+		return ""
+	}
+
+	defaultDatabase := filepath.Join(homeDir, ".config/folkctl/databases/testbrukere.txt")
+	return defaultDatabase
+}
 
 type Config struct {
 	ActiveDatabase string `toml:"active_database"`
@@ -108,7 +121,7 @@ func createDefaultDatabase() {
 		return
 	}
 
-	source, err := os.Open(DEFAULT_DATABASE)
+	source, err := os.Open(ORIGINAL_DATABASE)
 
 	if err != nil {
 		fmt.Println("Error opening default database:", err)

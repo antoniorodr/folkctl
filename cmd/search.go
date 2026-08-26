@@ -41,6 +41,9 @@ var searchCmd = &cobra.Command{
 }
 
 func init() {
+	// FIX: The flag is not working as intended
+	// TODO: Find a way to change the "active database" from the config
+	// TODO: Parse UTF-16 files
 	searchCmd.Flags().StringP("file", "f", "", "change the database file to populate the folkctl database with")
 	rootCmd.AddCommand(searchCmd)
 }
