@@ -12,10 +12,14 @@ This project is the CLI tool for the [Folkomaten](https://github.com/olefredrik/
 
 ## ✨ Features
 
-- Search for users in the Folkctl test database.
+- Search for users in the Folkctl default database.
 - Copy the fødselsnummer to the clipboard.
 - Copy the name to the clipboard.
 - Copy the all information to the clipboard.
+- Open your own users database file (comma separated values) using the `--file` flag.
+- Change the default database file using the `--database` flag.
+
+The app supports both UTF-16 (as used by BankID Preprod when generating the files) and UTF-8 (as the default database file). The national identity numbers are synthetic and do not belong to any real individuals.
 
 ## 🛠️ Technologies
 
@@ -48,12 +52,6 @@ go build && sudo mv folkctl /usr/local/bin/
 go install github.com/antoniorodr/folkctl@latest
 ```
 
-<!-- ### Homebrew installation -->
-<!---->
-<!-- ```bash -->
-<!-- brew install your-project -->
-<!-- ``` -->
-
 ## 🚀 Getting Started
 
 Once installed, run:
@@ -61,6 +59,8 @@ Once installed, run:
 ```bash
 folkctl
 ```
+
+You will see a list of available commands/flags and a description of each.
 
 ## ❤️ Do you like my work?
 
