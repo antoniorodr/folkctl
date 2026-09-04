@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 )
 
+var VERSION = "unknown"
 var ORIGINAL_DATABASE = "resources/testbrukere.txt"
 var DEFAULT_DATABASE = getDefaultDatabase()
 
@@ -172,6 +173,8 @@ func getConfigPath() (string, error) {
 
 func init() {
 	rootCmd.Flags().StringP("database", "d", "", "change the 'active database' from the config to the path specified")
+	rootCmd.Version = VERSION
+	rootCmd.SetVersionTemplate("folkctl version {{.Version}}\n")
 
 	configPath, _ := getConfigPath()
 	configFile := filepath.Join(configPath, "config.toml")
