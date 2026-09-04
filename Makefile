@@ -1,3 +1,6 @@
+# The Makefile is for local development only.
+
+
 VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo unknown)
 LDFLAGS := -X github.com/antoniorodr/folkctl/cmd.version=$(VERSION)
 BINARY  := folkctl

@@ -7,8 +7,6 @@ import (
 	"github.com/antoniorodr/folkctl/cmd"
 )
 
-// FIX: Fix version flag
-
 func main() {
 	cmd.Execute()
 }
