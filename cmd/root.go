@@ -37,6 +37,26 @@ var rootCmd = &cobra.Command{
 	Long: `Folkctl is a CLI tool for finding and copying national identity numbers
 (fødselsnummer) for BankID test users that also exist in the Norwegian
 National Population Register (DSF) test database.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		databasePath, err := cmd.Flags().GetString("database")
+
+		if err != nil {
+			fmt.Println("Error reading flag:", err)
+			return err
+		}
+
+		if cmd.Flags().Changed("database") {
+			if databasePath == "" {
+				return fmt.Errorf("database path cannot be empty")
+			}
+			createDefaultConfig(databasePath)
+			fmt.Printf("Config updated: active database set to %s\n", databasePath)
+			return nil
+		}
+
+		cmd.Help()
+		return nil
+	},
 }
 
 func Execute() {
@@ -79,13 +99,6 @@ func createDefaultConfig(activeDatabase string) {
 	}
 
 	configFile := filepath.Join(configDir, "config.toml")
-
-	if _, err := os.Stat(configFile); err == nil {
-		return
-	} else if !os.IsNotExist(err) {
-		fmt.Println("Error checking config file:", err)
-		return
-	}
 
 	err = os.WriteFile(
 		configFile,
@@ -158,6 +171,14 @@ func getConfigPath() (string, error) {
 }
 
 func init() {
-	createDefaultConfig(DEFAULT_DATABASE)
+	rootCmd.Flags().StringP("database", "d", "", "change the 'active database' from the config to the path specified")
+
+	configPath, _ := getConfigPath()
+	configFile := filepath.Join(configPath, "config.toml")
+
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		createDefaultConfig(DEFAULT_DATABASE)
+	}
+
 	createDefaultDatabase()
 }
