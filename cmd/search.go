@@ -24,25 +24,23 @@ var searchCmd = &cobra.Command{
 
 	You can copy information of the selected user to the clipboard by pressing Enter and then choose what to copy`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		databasePath, err := cmd.Flags().GetString("file")
+		databaseFile, err := cmd.Flags().GetString("file")
 
 		if err != nil {
 			fmt.Println("Error reading flag:", err)
 			return err
 		}
 
-		if databasePath == "" {
-			databasePath = loadConfig()
+		if databaseFile == "" {
+			databaseFile = loadConfig()
 		}
 
-		getTestUsers(databasePath)
+		getTestUsers(databaseFile)
 		return nil
 	},
 }
 
 func init() {
-	// FIX: The flag is not working as intended
-	// TODO: Find a way to change the "active database" from the config
 	// TODO: Parse UTF-16 files
 	searchCmd.Flags().StringP("file", "f", "", "change the database file to populate the folkctl database with")
 	rootCmd.AddCommand(searchCmd)
