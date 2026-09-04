@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"fmt"
 	fzf "github.com/junegunn/fzf/src"
+	"github.com/nolotz/unutf16"
 	"github.com/spf13/cobra"
 	"io"
 	"os"
@@ -41,7 +42,6 @@ var searchCmd = &cobra.Command{
 }
 
 func init() {
-	// TODO: Parse UTF-16 files
 	searchCmd.Flags().StringP("file", "f", "", "change the database file to populate the folkctl database with")
 	rootCmd.AddCommand(searchCmd)
 }
@@ -54,8 +54,8 @@ func getTestUsers(filePath string) {
 		return
 	}
 
-	content, err := os.ReadFile(filePath)
 	clipboardCmd := detectClipboardCmd()
+	content := parseFile(filePath)
 
 	selected, err := startFzf(content)
 
@@ -82,6 +82,22 @@ func getTestUsers(filePath string) {
 	} else {
 		fmt.Printf("Copied: %s\n", value)
 	}
+}
+
+func parseFile(filePath string) []byte {
+	file, err := os.Open(filePath)
+
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return nil
+	}
+
+	defer file.Close()
+
+	utf8Reader := unutf16.NewReader(file)
+	content, err := io.ReadAll(utf8Reader)
+
+	return content
 }
 
 func detectClipboardCmd() string {
