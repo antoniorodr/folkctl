@@ -24,15 +24,14 @@ jobs:
           cache-dependency-path: "go.sum"
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
-        id: git-cliff
         with:
           config: cliff.toml
           args: -vv --latest --strip header
         env:
-          OUTPUT: CHANGELOG.md
+          OUTPUT: /tmp/CHANGELOG.md
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
-          args: release --clean --release-notes CHANGELOG.md
+          args: release --clean --release-notes /tmp/CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
