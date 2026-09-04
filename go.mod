@@ -25,3 +25,5 @@ require (
 )
 
 require github.com/BurntSushi/toml v1.6.0 // direct
+
+require github.com/nolotz/unutf16 v1.1.0 // indirect
